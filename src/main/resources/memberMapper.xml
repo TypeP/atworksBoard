@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.spring.shop.login.MemberMapper">
+  	<insert id="register" parameterType="com.spring.shop.login.MemberDto" useGeneratedKeys="true"  keyProperty="mi_seq">
+  		insert into member_info(
+			mi_id,
+			mi_pw,
+			mi_name,
+			mi_nickname,
+			mi_email,
+			mi_mobile,
+			mi_postcode,
+			mi_roadaddress,
+			mi_detailaddress,
+			mi_seq
+		) values (
+			#{mi_id},
+			#{mi_pw},
+			#{mi_name},
+			#{mi_nickname},
+			#{mi_email},
+			#{mi_mobile},
+			#{mi_postcode},
+			#{mi_roadaddress},
+			#{mi_detailaddress},
+			nextval('seq_mi_seq')
+		)
+  	</insert>
+  	
+  	<insert id="insertAttach" parameterType="hashMap">
+  		insert into board_attach(
+  			board_type,
+			board_id,
+			file_name,
+			saved_file_name,
+			file_size
+  		) values (
+  			'Member',
+  			#{user_id},
+  			#{file_name},
+  			#{saved_file_name},
+  			#{file_size}
+  		)
+  	</insert>
+  	
+  	<select id="login" parameterType="com.spring.shop.login.MemberDto" resultType="UserBoardDto">
+    	select 
+			b.board_id,
+			b.file_num,
+			b.file_name,
+			b.saved_file_name,
+			b.file_size,
+			m.mi_seq,
+			m.mi_id,
+			m.mi_pw,
+			m.mi_name,
+			m.mi_nickname,
+			m.mi_email,
+			m.mi_mobile,
+			m.mi_postcode,
+			m.mi_roadaddress,
+			m.mi_detailaddress,
+			m.mi_createdat
+		from member_info m
+		full outer join board_attach b on m.mi_seq=b.board_id
+		where 
+			m.mi_id = #{mi_id} and m.mi_pw = #{mi_pw};
+ 	 </select>
+ 	 
+ 	 <update id="update" parameterType="com.spring.shop.login.MemberDto">
+ 	 	update member_info set
+ 	 		mi_name=#{mi_name},
+ 	 		mi_nickname=#{mi_nickname},
+ 	 		mi_email=#{mi_email},
+ 	 		mi_mobile=#{mi_mobile},
+ 	 		mi_postcode=#{mi_postcode},
+ 	 		mi_roadaddress=#{mi_roadaddress},
+ 	 		mi_detailaddress=#{mi_detailaddress}
+ 	 	where 
+ 	 		mi_id=#{mi_id} and mi_pw =#{mi_pw}
+ 	 </update>
+ 	 
+ 	 <insert id="updateAttach" parameterType="hashMap">
+ 	 	<selectKey keyProperty="num" resultType="Integer" order="BEFORE">
+ 		 	select coalesce(max(file_num), null) as num 
+ 	 		from board_attach
+ 	 		where 
+ 	 			board_id = #{user_id} and 
+ 	 			board_type = 'Member'
+ 	 	</selectKey>
+		 insert into board_attach(
+	  		board_type,
+			board_id,
+			<if test="num != null">
+				file_num,
+			</if>
+			file_name,
+			saved_file_name,
+			file_size
+	  	) values (
+	  		#{board_type},
+	  		#{user_id},
+	  		<if test="num != null">
+	  			#{num},
+	  		</if>
+	  		#{file_name},
+	  		#{saved_file_name},
+	  		#{file_size}
+	  	)
+	  	on conflict (board_id, file_num)
+	 	do update
+		set
+			file_name=#{file_name},
+			saved_file_name=#{saved_file_name},
+			file_size=#{file_size}	 	 	
+  	</insert>
+  	
+  	<delete id="delete" parameterType="com.spring.shop.login.MemberDto">
+  		delete from member_info
+  		where 
+  			mi_id = #{mi_id} and mi_pw=#{mi_pw}
+  	</delete>
+  	
+  	<delete id="deleteAttach" parameterType="com.spring.shop.login.MemberDto">
+  		delete from board_attach
+  		where 
+  			board_id=#{board_id}
+  	</delete>
+</mapper>

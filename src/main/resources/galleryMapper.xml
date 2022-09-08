@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.spring.shop.gallery.GalleryMapper">
+	<select id="listGallery" resultType="com.spring.shop.gallery.GalleryFileDto" parameterType="map">
+		select 
+			gi.gl_no,
+			gi.gl_title,
+			gi.gl_content,
+			gi.gl_writer,
+			gi.gl_createdat,
+			ba.board_type,
+			ba.file_num,
+			ba.file_name,
+			ba.saved_file_name,
+			ba.file_size
+		from gallery_info gi 
+		left outer join board_attach ba 
+		on gi.gl_no = ba.board_id and ba.file_num  =  (select min(b.file_num) from board_attach b where b.board_id = gi.gl_no)
+		<include refid="searchSql2" />
+		order by gi.gl_no desc
+		limit #{limit} - #{offset} offset #{offset}
+	</select>
+	
+	<select id="getGalleryTotalCnt" parameterType="com.spring.shop.utils.SearchDto" resultType="int">
+		select count(*)
+		from gallery_info
+		<include refid="searchSql2" />
+	</select>
+	
+	<sql id="searchSql2">
+		<where>
+		 	<if test="searchType != null or searchType != ''"><!-- 서치 타입이 널이 아닐경우와 빈공백이 아닐경우  -->
+			 	<choose>
+					<when test="searchType != 'all'">	<!-- 서치타입이 올이 아닐경우에 -->
+						${searchType} like '%'||#{keyword}||'%'	<!-- 아이디 값은 dto와 동일할때 가지고 올수 있음 -->
+					</when>
+					<otherwise>
+						(gl_title || gl_writer) like '%'||#{keyword}||'%' <!-- 아닌경우 검색하는것 -->
+					</otherwise>		 		
+			 	</choose>
+		 	</if>
+		 </where>
+	</sql>
+	
+	<insert id="writeGallery" parameterType="com.spring.shop.gallery.GalleryDto" useGeneratedKeys="true" keyProperty="gl_no">
+		insert into gallery_info(
+			gl_no,
+			gl_title,
+			gl_content,
+			gl_writer,
+			gl_createdat
+		)
+		values(
+			nextval('seq_gl_no'),
+			#{gl_title},
+			#{gl_content},
+			#{gl_writer},
+			current_date
+		)
+	</insert>
+	
+	<insert id="insertAttachGallery" parameterType="hashMap">
+		insert into board_attach(
+			board_type,
+			board_id,
+			file_name,
+			saved_file_name,
+			file_size
+		) values
+			<foreach collection="list" separator="," item="it">
+		  		(
+		  			'Gallery',
+		  			#{it.user_id},
+		  			#{it.file_name},
+		  			#{it.saved_file_name},
+		  			#{it.file_size}
+		  		)
+  			</foreach>
+	</insert>
+	
+	<select id="getGalleryDetail" parameterType="int" resultType="com.spring.shop.gallery.GalleryDto">
+		select 
+			gl_no,
+			gl_title,
+			gl_content,
+			gl_writer,
+			gl_createdat
+		from gallery_info
+		where gl_no=#{gl_no}
+	</select>
+	
+	<select id="getFileGallery" parameterType="int" resultType="com.spring.shop.notice.FileListDto">
+		select
+			board_id,
+			file_num,
+			file_name,
+			saved_file_name,
+			file_size,
+			insert_dt
+		from board_attach
+		where board_id = #{gl_no} and board_type = 'Gallery'	
+	</select>
+	
+	<delete id="deleteGallery" parameterType="int">
+		delete from gallery_info
+		where
+			gl_no = #{gl_no}	
+	</delete>	
+	
+	<delete id="deleteGalleryAttach" parameterType="int">
+		delete from board_attach
+		where
+			board_id = #{gl_no}
+	</delete>
+	
+	<update id="updateGallery" parameterType="com.spring.shop.gallery.GalleryDto">
+		update gallery_info set
+			gl_title=#{gl_title},
+			gl_content=#{gl_content}
+		where
+			gl_no=#{gl_no}
+	</update>
+	
+</mapper>

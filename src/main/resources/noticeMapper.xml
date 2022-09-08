@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.spring.shop.notice.NoticeMapper">
+	<select id="listNotice" resultType="com.spring.shop.notice.NoticeDto" parameterType="map">
+	     select 
+		 	ni_writer,
+		 	ni_no,
+		 	ni_title,
+		 	ni_content
+		 from notice_info
+		 <include refid="searchSql" /><!-- mybatis에서 아이디로 내용 가지고오는 방법 -->
+		 order by ni_no desc
+		 limit #{limit} - #{offset} offset #{offset}
+	</select>
+	
+	<select id="getNoticeTotalCnt" parameterType="com.spring.shop.utils.SearchDto" resultType="int">
+		select count(*)
+		from notice_info
+		<include refid="searchSql" />
+	</select>
+	
+	<sql id="searchSql">
+		<where>
+		 	<if test="searchType != null or searchType != ''"><!-- 서치 타입이 널이 아닐경우와 빈공백이 아닐경우  -->
+			 	<choose>
+					<when test="searchType != 'all'">	<!-- 서치타입이 올이 아닐경우에 -->
+						${searchType} like '%'||#{keyword}||'%'	<!-- 아이디 값은 dto와 동일할때 가지고 올수 있음 -->
+					</when>
+					<otherwise>
+						(ni_title || ni_writer) like '%'||#{keyword}||'%' <!-- 아닌경우 검색하는것 -->
+					</otherwise>		 		
+			 	</choose>
+		 	</if>
+		 </where>
+	</sql>
+	  
+	<select id="getNoticeDetail" parameterType="int" resultType="com.spring.shop.notice.NoticeDto">
+		select 
+			ni_writer,
+			ni_no,
+			ni_title,
+			ni_content
+		from notice_info
+		where ni_no = #{ni_no}
+	</select>
+	
+	<select id="getFileList" parameterType="int" resultType="com.spring.shop.notice.FileListDto">
+		select
+			board_id,
+			file_num,
+			file_name,
+			saved_file_name,
+			file_size,
+			insert_dt
+		from board_attach
+		where board_id = #{ni_no} and board_type = 'Notice'		
+	</select>
+  
+	<insert id="writeNotice" parameterType="com.spring.shop.notice.NoticeDto" useGeneratedKeys="true" keyColumn="ni_no" keyProperty="ni_no">
+		insert into notice_info(
+	 		ni_writer,
+	 		ni_no,
+	 		ni_title,
+	 		ni_content
+		)values(
+	 		#{ni_writer},
+	 		nextval('ni_seq'),
+	 		#{ni_title},
+	 		#{ni_content}
+		)
+	</insert>
+  
+	<insert id="insertAttachNotice" parameterType="hashMap">
+  		insert into board_attach(
+  			board_type,
+			board_id,
+			file_name,
+			saved_file_name,
+			file_size
+  		) values 
+  			<foreach collection="list" separator="," item="it">
+		  		(
+		  			'Notice',
+		  			#{it.user_id},
+		  			#{it.file_name},
+		  			#{it.saved_file_name},
+		  			#{it.file_size}
+		  		)
+  			</foreach>
+	</insert>
+  	
+  	<update id="updateNotice" parameterType="com.spring.shop.notice.NoticeDto">
+  		update notice_info set
+  			ni_title=#{ni_title},
+  			ni_content=#{ni_content}
+  		where
+  			ni_no=#{ni_no}  	
+  	</update>
+	
+	
+	<delete id="deleteNotice" parameterType="int">
+  		delete from notice_info
+  		where 
+  			ni_no = #{seq}
+	</delete>
+  	
+	<delete id="deleteNoticeAttach" parameterType="int">
+  		delete from board_attach
+  		where 
+  			board_id=#{seq}
+	</delete>
+</mapper>
