@@ -14,9 +14,58 @@
 			<input type="text" id='search' class="form-control form-control-sm"	placeholder="" aria-controls="dataTable"> 
 			<input type="button" id="searchbutton" class="w-49 btn btn-primary btn-lg" value="검색">
 	</div>
-	<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-		<div class="list">
+	<div id="list" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+		<!-- <div class="col">
+			<div class="card shadow-sm">
+				<svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+					<title>Placeholder</title><rect width="100%" height="100%"fill="#55595c"></rect>
+					<text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+				<div class="card-body">
+					<p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+					<div class="d-flex justify-content-between align-items-center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+							<button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+						</div>
+						<small class="text-muted">9 mins</small>
+					</div>
+				</div>
+			</div>
 		</div>
+		<div class="col">
+			<div class="card shadow-sm">
+				<svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+					<title>Placeholder</title><rect width="100%" height="100%"fill="#55595c"></rect>
+					<text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+				<div class="card-body">
+					<p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+					<div class="d-flex justify-content-between align-items-center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+							<button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+						</div>
+						<small class="text-muted">9 mins</small>
+					</div>
+				</div>
+			</div>
+		</div> 
+		<div class="col">
+			<div class="card shadow-sm">
+				<svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+					<title>Placeholder</title><rect width="100%" height="100%"fill="#55595c"></rect>
+					<text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+				<div class="card-body">
+					<p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+					<div class="d-flex justify-content-between align-items-center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+							<button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+						</div>
+						<small class="text-muted">9 mins</small>
+					</div>
+				</div>
+			</div>
+		</div>   -->
 	</div>
 	<div class="pageNav">
 	</div>  
@@ -48,7 +97,7 @@ function getList(selectPage) {
 		success : function(value) {
 			console.log(value);
 			let html = "";		//html 변수선언
-			$(".list").children().remove();		//list의 내용을 전부 제거한다
+			$("#list").children().remove();		//list의 내용을 전부 제거한다
 			if(value.length < 1) {				//value에 있는 길이가 1보다 작으면
 				html += '<span>공지사항 목록이 없습니다</span>';		//내용을 스트링으로 입력
 			}else {				//배열에 값이 있으면
@@ -72,7 +121,7 @@ function getList(selectPage) {
 					html += '</div>'
 				}
 			}
-			$(".list").append(html);		//list에 위 내용을 출력한다
+			$("#list").append(html);		//list에 위 내용을 출력한다
 			
 			let pagingHtml = paging({		//paginghtml 페이지에 위 내용을 넣는다
 				pagePerCnt : value.pagePerCnt,	//몇개나 출력이 될지 내용에 있는 페이지를 넣고

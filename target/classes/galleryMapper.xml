@@ -19,7 +19,7 @@
 		from gallery_info gi 
 		left outer join board_attach ba 
 		on gi.gl_no = ba.board_id and ba.file_num  =  (select min(b.file_num) from board_attach b where b.board_id = gi.gl_no)
-		<include refid="searchSql2" />
+		<!-- <include refid="searchSql2" /> -->
 		order by gi.gl_no desc
 		limit #{limit} - #{offset} offset #{offset}
 	</select>
@@ -27,23 +27,23 @@
 	<select id="getGalleryTotalCnt" parameterType="com.spring.shop.utils.SearchDto" resultType="int">
 		select count(*)
 		from gallery_info
-		<include refid="searchSql2" />
+		<!-- <include refid="searchSql2" /> -->
 	</select>
 	
-	<sql id="searchSql2">
+	<!-- <sql id="searchSql2">
 		<where>
-		 	<if test="searchType != null or searchType != ''"><!-- 서치 타입이 널이 아닐경우와 빈공백이 아닐경우  -->
+		 	<if test="searchType != null or searchType != ''">서치 타입이 널이 아닐경우와 빈공백이 아닐경우 
 			 	<choose>
-					<when test="searchType != 'all'">	<!-- 서치타입이 올이 아닐경우에 -->
-						${searchType} like '%'||#{keyword}||'%'	<!-- 아이디 값은 dto와 동일할때 가지고 올수 있음 -->
+					<when test="searchType != 'all'">	서치타입이 올이 아닐경우에
+						${searchType} like '%'||#{keyword}||'%'	아이디 값은 dto와 동일할때 가지고 올수 있음
 					</when>
 					<otherwise>
-						(gl_title || gl_writer) like '%'||#{keyword}||'%' <!-- 아닌경우 검색하는것 -->
+						(gl_title || gl_writer) like '%'||#{keyword}||'%' 아닌경우 검색하는것
 					</otherwise>		 		
 			 	</choose>
 		 	</if>
 		 </where>
-	</sql>
+	</sql> -->
 	
 	<insert id="writeGallery" parameterType="com.spring.shop.gallery.GalleryDto" useGeneratedKeys="true" keyProperty="gl_no">
 		insert into gallery_info(
